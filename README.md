@@ -153,7 +153,7 @@ sui move build
 3. Deploy ke testnet:
 
 ```bash
-sui client publish --gas-budget 100000000
+sui client publish --gas-budget 200000000
 ```
 
 4. Interaksi dengan contract:
@@ -168,7 +168,7 @@ sui client call \
   --module kampus \
   --function register_mahasiswa \
   --args <ADMIN_CAP_ID> <REGISTRY_ID> "Budi Santoso" 20230001 "Teknik Informatika" <STUDENT_ADDRESS> \
-  --gas-budget 10000000
+  --gas-budget 20000000
 
 # Lihat info kampus
 sui client call \
@@ -176,7 +176,7 @@ sui client call \
   --module kampus \
   --function get_kampus_info \
   --args <REGISTRY_ID> \
-  --gas-budget 1000000
+  --gas-budget 2000000
 ```
 
 ## Contract yang Sudah Di-Deploy
@@ -198,7 +198,7 @@ sui client call \
   --module kampus \
   --function register_mahasiswa \
   --args 0x7cc96cac863476916f5392cd019d09c49a2bf61e427537b916711cff8d263975 0x448b933cf7e3bfa179acc9cc20a868608002d1628207cd813282603f2b3f3a43 "Budi Santoso" 20230001 "Teknik Informatika" 0xALAMAT_MAHASISWA \
-  --gas-budget 10000000
+  --gas-budget 20000000
 ```
 
 ### 2. Lihat Informasi Kampus
@@ -209,7 +209,7 @@ sui client call \
   --module kampus \
   --function get_kampus_info \
   --args 0x448b933cf7e3bfa179acc9cc20a868608002d1628207cd813282603f2b3f3a43 \
-  --gas-budget 1000000
+  --gas-budget 2000000
 ```
 
 ### 3. Input Nilai Mata Kuliah (Admin Only)
@@ -220,7 +220,7 @@ sui client call \
   --module kampus \
   --function beri_nilai \
   --args 0x7cc96cac863476916f5392cd019d09c49a2bf61e427537b916711cff8d263975 "IF101" "Pemrograman Dasar" 3 85 1 2024 20230001 0xALAMAT_MAHASISWA \
-  --gas-budget 10000000
+  --gas-budget 20000000
 ```
 
 ### 4. Update Semester Mahasiswa
@@ -242,7 +242,7 @@ sui client call \
   --module kampus \
   --function hitung_ipk \
   --args 0xPROFILE_MAHASISWA_ID "[0xNILAI_MK_ID1,0xNILAI_MK_ID2]" \
-  --gas-budget 10000000
+  --gas-budget 20000000
 ```
 
 ### 6. Cek Status Kelulusan Mahasiswa
@@ -253,7 +253,7 @@ sui client call \
   --module kampus \
   --function cek_kelulusan \
   --args 0xPROFILE_MAHASISWA_ID \
-  --gas-budget 1000000
+  --gas-budget 2000000
 ```
 
 ### 7. Lihat Detail Profil Mahasiswa
@@ -264,7 +264,7 @@ sui client call \
   --module kampus \
   --function get_mahasiswa_info \
   --args 0xPROFILE_MAHASISWA_ID \
-  --gas-budget 1000000
+  --gas-budget 2000000
 ```
 
 ### 8. Lihat Detail Nilai Mata Kuliah
@@ -275,7 +275,7 @@ sui client call \
   --module kampus \
   --function get_nilai_info \
   --args 0xNILAI_MK_ID \
-  --gas-budget 1000000
+  --gas-budget 2000000
 ```
 
 ### Catatan Penggunaan:
