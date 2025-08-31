@@ -1,22 +1,25 @@
 module sistem_akademik::kampus {
     use std::string::{Self, String};
     use std::vector;
+    use sui::object::{Self, UID};
+    use sui::transfer;
+    use sui::tx_context::{Self, TxContext};
+    use sui::event;
     
     // === ERROR CONSTANTS ===
     const ENIM_INVALID: u64 = 0;
     const ENOT_AUTHORIZED: u64 = 1;
     const EVALUES_INVALID: u64 = 2;
-    const ENOT_FOUND: u64 = 3;
     
     // === STRUCTS ===
     
     // Admin capability
-    public struct AdminCap has key {
+    struct AdminCap has key {
         id: UID,
     }
     
     // Mahasiswa profile (owned object)
-    public struct MahasiswaProfile has key, store {
+    struct MahasiswaProfile has key, store {
         id: UID,
         nama: String,
         nim: u32,
@@ -29,7 +32,7 @@ module sistem_akademik::kampus {
     }
     
     // Registry kampus (shared object)
-    public struct KampusRegistry has key {
+    struct KampusRegistry has key {
         id: UID,
         nama_kampus: String,
         total_mahasiswa: u64,
@@ -38,7 +41,7 @@ module sistem_akademik::kampus {
     }
     
     // Nilai mata kuliah (owned object)
-    public struct NilaiMataKuliah has key, store {
+    struct NilaiMataKuliah has key, store {
         id: UID,
         nim_mahasiswa: u32,
         kode_mk: String,
@@ -50,13 +53,13 @@ module sistem_akademik::kampus {
     }
     
     // === EVENTS ===
-    public struct MahasiswaRegistered has copy, drop {
+    struct MahasiswaRegistered has copy, drop {
         nim: u32,
         nama: String,
         jurusan: String,
     }
     
-    public struct NilaiAdded has copy, drop {
+    struct NilaiAdded has copy, drop {
         nim: u32,
         mata_kuliah: String,
         nilai: u8,
@@ -119,7 +122,7 @@ module sistem_akademik::kampus {
         vector::push_back(&mut registry.daftar_nim, nim);
         
         // Emit event
-        sui::event::emit(MahasiswaRegistered {
+        event::emit(MahasiswaRegistered {
             nim,
             nama,
             jurusan,
@@ -158,7 +161,7 @@ module sistem_akademik::kampus {
         };
         
         // Emit event
-        sui::event::emit(NilaiAdded {
+        event::emit(NilaiAdded {
             nim: nim_mahasiswa,
             mata_kuliah: nama_mk,
             nilai,
@@ -191,35 +194,45 @@ module sistem_akademik::kampus {
     ) {
         assert!(profile.owner == tx_context::sender(ctx), ENOT_AUTHORIZED);
         
-        let mut total_nilai_tertimbang = 0u64;
-        let mut total_sks = 0u64;
-        let mut i = 0;
-        
-        let len = vector::length(daftar_nilai);
-        while (i < len) {
-            let nilai_mk = vector::borrow(daftar_nilai, i);
-            
-            // Hanya hitung nilai untuk mahasiswa ini
-            if (nilai_mk.nim_mahasiswa == profile.nim) {
-                // Konversi nilai ke point (A=4, B=3, C=2, D=1, E=0)
-                let point = if (nilai_mk.nilai >= 80) 4
-                           else if (nilai_mk.nilai >= 70) 3
-                           else if (nilai_mk.nilai >= 60) 2
-                           else if (nilai_mk.nilai >= 50) 1
-                           else 0;
-                
-                total_nilai_tertimbang = total_nilai_tertimbang + (point * (nilai_mk.sks as u64));
-                total_sks = total_sks + (nilai_mk.sks as u64);
-            };
-            
-            i = i + 1;
-        };
+        let (total_nilai_tertimbang, total_sks) = calculate_totals(profile.nim, daftar_nilai, 0, 0u64, 0u64);
         
         // Update profile
         profile.total_sks = total_sks;
         if (total_sks > 0) {
             profile.ipk = (total_nilai_tertimbang * 100) / total_sks; // IPK x 100
+        } else {
+            profile.ipk = 0;
         };
+    }
+    
+    // Helper function untuk menghitung total menggunakan rekursi
+    fun calculate_totals(
+        nim: u32, 
+        daftar_nilai: &vector<NilaiMataKuliah>, 
+        index: u64,
+        acc_tertimbang: u64,
+        acc_sks: u64
+    ): (u64, u64) {
+        let len = vector::length(daftar_nilai);
+        if (index >= len) {
+            return (acc_tertimbang, acc_sks)
+        };
+        
+        let nilai_mk = vector::borrow(daftar_nilai, index);
+        let (new_tertimbang, new_sks) = if (nilai_mk.nim_mahasiswa == nim) {
+            // Konversi nilai ke point (A=4, B=3, C=2, D=1, E=0)
+            let point = if (nilai_mk.nilai >= 80) 4
+                       else if (nilai_mk.nilai >= 70) 3
+                       else if (nilai_mk.nilai >= 60) 2
+                       else if (nilai_mk.nilai >= 50) 1
+                       else 0;
+            
+            (acc_tertimbang + (point * (nilai_mk.sks as u64)), acc_sks + (nilai_mk.sks as u64))
+        } else {
+            (acc_tertimbang, acc_sks)
+        };
+        
+        calculate_totals(nim, daftar_nilai, index + 1, new_tertimbang, new_sks)
     }
     
     // === VIEW FUNCTIONS ===
