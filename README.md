@@ -179,6 +179,123 @@ sui client call \
   --gas-budget 1000000
 ```
 
+## Contract yang Sudah Di-Deploy
+
+Contract telah berhasil di-deploy di Sui testnet dengan informasi berikut:
+
+- **Package ID**: `0x569451806843e74b8ce15ae1e1da0dc4618c07958f9688378952b4c4f34f6adf`
+- **Admin Cap ID**: `0x7cc96cac863476916f5392cd019d09c49a2bf61e427537b916711cff8d263975`
+- **Kampus Registry ID**: `0x448b933cf7e3bfa179acc9cc20a868608002d1628207cd813282603f2b3f3a43`
+- **Transaction Digest**: `4zDSaVmnCeHoSpqcCbvqBBDF3Envdz4ojq7hP5odfh8D`
+
+## Cara Menggunakan Contract yang Sudah Di-Deploy
+
+### 1. Registrasi Mahasiswa Baru (Admin Only)
+
+```bash
+sui client call \
+  --package 0x569451806843e74b8ce15ae1e1da0dc4618c07958f9688378952b4c4f34f6adf \
+  --module kampus \
+  --function register_mahasiswa \
+  --args 0x7cc96cac863476916f5392cd019d09c49a2bf61e427537b916711cff8d263975 0x448b933cf7e3bfa179acc9cc20a868608002d1628207cd813282603f2b3f3a43 "Budi Santoso" 20230001 "Teknik Informatika" 0xALAMAT_MAHASISWA \
+  --gas-budget 10000000
+```
+
+### 2. Lihat Informasi Kampus
+
+```bash
+sui client call \
+  --package 0x569451806843e74b8ce15ae1e1da0dc4618c07958f9688378952b4c4f34f6adf \
+  --module kampus \
+  --function get_kampus_info \
+  --args 0x448b933cf7e3bfa179acc9cc20a868608002d1628207cd813282603f2b3f3a43 \
+  --gas-budget 1000000
+```
+
+### 3. Input Nilai Mata Kuliah (Admin Only)
+
+```bash
+sui client call \
+  --package 0x569451806843e74b8ce15ae1e1da0dc4618c07958f9688378952b4c4f34f6adf \
+  --module kampus \
+  --function beri_nilai \
+  --args 0x7cc96cac863476916f5392cd019d09c49a2bf61e427537b916711cff8d263975 "IF101" "Pemrograman Dasar" 3 85 1 2024 20230001 0xALAMAT_MAHASISWA \
+  --gas-budget 10000000
+```
+
+### 4. Update Semester Mahasiswa
+
+```bash
+sui client call \
+  --package 0x569451806843e74b8ce15ae1e1da0dc4618c07958f9688378952b4c4f34f6adf \
+  --module kampus \
+  --function update_semester \
+  --args 0xPROFILE_MAHASISWA_ID 2 \
+  --gas-budget 5000000
+```
+
+### 5. Hitung IPK Mahasiswa
+
+```bash
+sui client call \
+  --package 0x569451806843e74b8ce15ae1e1da0dc4618c07958f9688378952b4c4f34f6adf \
+  --module kampus \
+  --function hitung_ipk \
+  --args 0xPROFILE_MAHASISWA_ID "[0xNILAI_MK_ID1,0xNILAI_MK_ID2]" \
+  --gas-budget 10000000
+```
+
+### 6. Cek Status Kelulusan Mahasiswa
+
+```bash
+sui client call \
+  --package 0x569451806843e74b8ce15ae1e1da0dc4618c07958f9688378952b4c4f34f6adf \
+  --module kampus \
+  --function cek_kelulusan \
+  --args 0xPROFILE_MAHASISWA_ID \
+  --gas-budget 1000000
+```
+
+### 7. Lihat Detail Profil Mahasiswa
+
+```bash
+sui client call \
+  --package 0x569451806843e74b8ce15ae1e1da0dc4618c07958f9688378952b4c4f34f6adf \
+  --module kampus \
+  --function get_mahasiswa_info \
+  --args 0xPROFILE_MAHASISWA_ID \
+  --gas-budget 1000000
+```
+
+### 8. Lihat Detail Nilai Mata Kuliah
+
+```bash
+sui client call \
+  --package 0x569451806843e74b8ce15ae1e1da0dc4618c07958f9688378952b4c4f34f6adf \
+  --module kampus \
+  --function get_nilai_info \
+  --args 0xNILAI_MK_ID \
+  --gas-budget 1000000
+```
+
+### Catatan Penggunaan:
+
+- Ganti `0xALAMAT_MAHASISWA` dengan alamat wallet mahasiswa yang sesungguhnya
+- Ganti `0xPROFILE_MAHASISWA_ID` dengan ID profil mahasiswa yang sudah terdaftar
+- Ganti `0xNILAI_MK_ID` dengan ID nilai mata kuliah yang ingin dilihat
+- Hanya pemilik AdminCap yang dapat melakukan registrasi mahasiswa dan input nilai
+- Mahasiswa hanya bisa mengakses dan mengubah profil mereka sendiri
+
+### Melihat Objects yang Dimiliki
+
+```bash
+# Cek semua objects yang dimiliki account Anda
+sui client objects
+
+# Cek objects berdasarkan type tertentu
+sui client objects --filter StructType=0x569451806843e74b8ce15ae1e1da0dc4618c07958f9688378952b4c4f34f6adf::kampus::MahasiswaProfile
+```
+
 ## Penggunaan
 
 ### 1. Deploy Contract
